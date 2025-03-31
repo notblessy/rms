@@ -6,6 +6,7 @@ CREATE TABLE campers (
     license_plate VARCHAR(50) UNIQUE NOT NULL,
     year INT NOT NULL,
     capacity INT NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
     condition VARCHAR(50) NOT NULL,
     last_maintenance TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

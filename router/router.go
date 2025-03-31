@@ -7,8 +7,9 @@ import (
 )
 
 type httpService struct {
-	db       *gorm.DB
-	userRepo model.UserRepository
+	db         *gorm.DB
+	userRepo   model.UserRepository
+	camperRepo model.CamperRepository
 }
 
 func NewHTTPService() *httpService {
@@ -23,6 +24,10 @@ func (h *httpService) RegisterUserRepository(u model.UserRepository) {
 	h.userRepo = u
 }
 
+func (h *httpService) RegisterCamperRepository(c model.CamperRepository) {
+	h.camperRepo = c
+}
+
 func (h *httpService) Routes(e *echo.Echo) {
 	e.GET("/ping", h.ping)
 	e.GET("/health", h.health)
@@ -30,12 +35,22 @@ func (h *httpService) Routes(e *echo.Echo) {
 	v1 := e.Group("/v1")
 	v1.GET("/auth/google", h.loginWithGoogleHandler)
 
+	publicCampers := v1.Group("/campers")
+	publicCampers.GET("", h.findAllCampersHandler)
+	publicCampers.GET("/:id", h.findCamperByIDHandler)
+
 	v1.Use(NewJWTMiddleware().ValidateJWT)
 
 	users := v1.Group("/users")
 	users.GET("", h.findAllUserHandler)
 	users.GET("/me", h.profileHandler)
 	users.PATCH("", h.patchUserHandler)
+
+	campers := v1.Group("/campers")
+	campers.POST("", h.createCamperHandler)
+	campers.PUT("/:id", h.updateCamperHandler)
+	campers.DELETE("/:id", h.deleteCamperHandler)
+
 }
 
 func (h *httpService) ping(c echo.Context) error {

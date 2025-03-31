@@ -54,6 +54,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.13.3
 	github.com/matoous/go-nanoid/v2 v2.1.0
+	github.com/shopspring/decimal v1.4.0
 	github.com/sirupsen/logrus v1.9.3
 	golang.org/x/text v0.23.0 // indirect
 	gorm.io/driver/postgres v1.5.11

@@ -10,5 +10,12 @@ CREATE TABLE equipments (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+CREATE TABLE camper_equipments (
+    rental_id INT NOT NULL REFERENCES rentals(id) ON DELETE CASCADE,
+    equipment_id INT NOT NULL REFERENCES equipments(id) ON DELETE CASCADE,
+    PRIMARY KEY (rental_id, equipment_id)
+);
+
 -- migrate:down
+DROP TABLE IF EXISTS camper_equipments;
 DROP TABLE IF EXISTS equipments;
