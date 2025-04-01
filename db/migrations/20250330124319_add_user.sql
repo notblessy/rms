@@ -8,7 +8,6 @@ CREATE TABLE users (
     address TEXT NOT NULL,
     id_number VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(150),
-    picture TEXT,
     role VARCHAR(32) NOT NULL DEFAULT 'USER',
     created_at TIMESTAMP,
     updated_at TIMESTAMP,
