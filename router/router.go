@@ -12,6 +12,7 @@ type httpService struct {
 	camperRepo    model.CamperRepository
 	equipmentRepo model.EquipmentRepository
 	driverRepo    model.DriverRepository
+	rentalRepo    model.RentalRepository
 }
 
 func NewHTTPService() *httpService {
@@ -36,6 +37,10 @@ func (h *httpService) RegisterEquipmentRepository(e model.EquipmentRepository) {
 
 func (h *httpService) RegisterDriverRepository(d model.DriverRepository) {
 	h.driverRepo = d
+}
+
+func (h *httpService) RegisterRentalRepository(r model.RentalRepository) {
+	h.rentalRepo = r
 }
 
 func (h *httpService) Routes(e *echo.Echo) {
@@ -74,6 +79,12 @@ func (h *httpService) Routes(e *echo.Echo) {
 	drivers.POST("", h.createDriverHandler)
 	drivers.PUT("/:id", h.updateDriverHandler)
 	drivers.DELETE("/:id", h.deleteDriverHandler)
+
+	rentals := v1.Group("/rentals")
+	rentals.GET("", h.findAllRentalHandler)
+	rentals.GET("/:id", h.findRentalByIDHandler)
+	rentals.POST("", h.createRentalHandler)
+	rentals.PUT("/:id", h.updateRentalHandler)
 }
 
 func (h *httpService) ping(c echo.Context) error {

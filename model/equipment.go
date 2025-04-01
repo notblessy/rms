@@ -3,6 +3,8 @@ package model
 import (
 	"context"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 type EquipmentRepository interface {
@@ -14,14 +16,16 @@ type EquipmentRepository interface {
 }
 
 type Equipment struct {
-	ID        string    `json:"id"`
-	ImageURL  string    `json:"image_url"`
-	Name      string    `json:"name"`
-	Category  string    `json:"category"`
-	Stock     int       `json:"stock"`
-	Condition string    `json:"condition"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID          string          `json:"id"`
+	ImageURL    string          `json:"image_url"`
+	Name        string          `json:"name"`
+	Category    string          `json:"category"`
+	Stock       int             `json:"stock"`
+	Price       decimal.Decimal `json:"price"`
+	Description string          `json:"description"`
+	Condition   string          `json:"condition"`
+	CreatedAt   time.Time       `json:"created_at"`
+	UpdatedAt   time.Time       `json:"updated_at"`
 }
 
 type EquipmentQueryInput struct {

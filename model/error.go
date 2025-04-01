@@ -8,4 +8,5 @@ var (
 	ErrRegisterRequired  = errors.New("register required")
 	ErrForbidden         = errors.New("forbidden request")
 	ErrDuplicateIDNumber = errors.New("duplicate id number")
+	ErrRentalCancelled   = errors.New("rental cancelled")
 )

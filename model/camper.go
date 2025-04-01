@@ -19,12 +19,16 @@ type Camper struct {
 	ID              string          `json:"id"`
 	ImageUrl        string          `json:"image_url"`
 	Name            string          `json:"name"`
+	Description     string          `json:"description"`
 	LicensePlate    string          `json:"license_plate"`
 	Year            int             `json:"year"`
 	Capacity        int             `json:"capacity"`
 	Price           decimal.Decimal `json:"price"`
 	Condition       string          `json:"condition"`
 	LastMaintenance NullTime        `json:"last_maintenance"`
+	Transmission    string          `json:"transmission"`
+	FuelType        string          `json:"fuel_type"`
+	Drivetrain      string          `json:"drivetrain"`
 	CreatedAt       time.Time       `json:"created_at"`
 	UpdatedAt       time.Time       `json:"updated_at"`
 }

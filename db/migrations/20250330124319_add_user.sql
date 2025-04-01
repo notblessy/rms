@@ -10,9 +10,9 @@ CREATE TABLE users (
     password VARCHAR(150),
     picture TEXT,
     role VARCHAR(32) NOT NULL DEFAULT 'USER',
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMPTZ,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
+    deleted_at TIMESTAMP,
 
     CONSTRAINT users_email_idx UNIQUE (email)
 );
