@@ -7,9 +7,11 @@ import (
 )
 
 type httpService struct {
-	db         *gorm.DB
-	userRepo   model.UserRepository
-	camperRepo model.CamperRepository
+	db            *gorm.DB
+	userRepo      model.UserRepository
+	camperRepo    model.CamperRepository
+	equipmentRepo model.EquipmentRepository
+	driverRepo    model.DriverRepository
 }
 
 func NewHTTPService() *httpService {
@@ -26,6 +28,14 @@ func (h *httpService) RegisterUserRepository(u model.UserRepository) {
 
 func (h *httpService) RegisterCamperRepository(c model.CamperRepository) {
 	h.camperRepo = c
+}
+
+func (h *httpService) RegisterEquipmentRepository(e model.EquipmentRepository) {
+	h.equipmentRepo = e
+}
+
+func (h *httpService) RegisterDriverRepository(d model.DriverRepository) {
+	h.driverRepo = d
 }
 
 func (h *httpService) Routes(e *echo.Echo) {
@@ -51,6 +61,19 @@ func (h *httpService) Routes(e *echo.Echo) {
 	campers.PUT("/:id", h.updateCamperHandler)
 	campers.DELETE("/:id", h.deleteCamperHandler)
 
+	equipments := v1.Group("/equipments")
+	equipments.GET("", h.findAllEquipmentHandler)
+	equipments.GET("/:id", h.findEquipmentByIDHandler)
+	equipments.POST("", h.createEquipmentHandler)
+	equipments.PUT("/:id", h.updateEquipmentHandler)
+	equipments.DELETE("/:id", h.deleteEquipmentHandler)
+
+	drivers := v1.Group("/drivers")
+	drivers.GET("", h.findAllDriversHandler)
+	drivers.GET("/:id", h.findDriverByIDHandler)
+	drivers.POST("", h.createDriverHandler)
+	drivers.PUT("/:id", h.updateDriverHandler)
+	drivers.DELETE("/:id", h.deleteDriverHandler)
 }
 
 func (h *httpService) ping(c echo.Context) error {

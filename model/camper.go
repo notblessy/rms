@@ -29,11 +29,6 @@ type Camper struct {
 	UpdatedAt       time.Time       `json:"updated_at"`
 }
 
-type CamperEquipment struct {
-	CamperID    string `json:"camper_id"`
-	EquipmentID string `json:"equipment_id"`
-}
-
 type CamperQueryInput struct {
 	Keyword string `query:"keyword"`
 	PaginatedRequest

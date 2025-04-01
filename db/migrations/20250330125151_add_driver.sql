@@ -3,6 +3,7 @@ CREATE TABLE drivers (
     id SERIAL PRIMARY KEY,
     photo TEXT,
     name VARCHAR(255) NOT NULL,
+    id_number VARCHAR(100) UNIQUE NOT NULL,
     license_number VARCHAR(100) UNIQUE NOT NULL,
     license_expiry DATE NOT NULL,
     phone VARCHAR(20) NOT NULL,

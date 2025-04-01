@@ -13,22 +13,17 @@ import (
 )
 
 type response struct {
-	Success bool        `json:"success"`
-	Message string      `json:"message,omitempty"`
-	Data    interface{} `json:"data"`
+	Success bool   `json:"success"`
+	Message string `json:"message,omitempty"`
+	Data    any    `json:"data"`
 }
-
-const (
-	defaultSize int = 10
-	defaultPage int = 1
-)
 
 type responseWithPaging struct {
-	Records     interface{}            `json:"records"`
-	PageSummary map[string]interface{} `json:"page_summary"`
+	Records     any            `json:"records"`
+	PageSummary map[string]any `json:"page_summary"`
 }
 
-func withPaging(result interface{}, total int64, page, size int) responseWithPaging {
+func withPaging(result any, total int64, page, size int) responseWithPaging {
 	offset := (page - 1) * size
 
 	var hasNext bool
@@ -38,17 +33,13 @@ func withPaging(result interface{}, total int64, page, size int) responseWithPag
 
 	return responseWithPaging{
 		Records: result,
-		PageSummary: map[string]interface{}{
+		PageSummary: map[string]any{
 			"size":    size,
 			"page":    page,
 			"hasNext": hasNext,
 			"total":   total,
 		},
 	}
-}
-
-func getOffset(page, size int) int {
-	return (page - 1) * size
 }
 
 type jwtClaims struct {

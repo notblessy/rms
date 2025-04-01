@@ -9,31 +9,64 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func (h *httpService) findCamperByIDHandler(c echo.Context) error {
+func (h *httpService) findDriverByIDHandler(c echo.Context) error {
 	logger := logrus.WithField("context", utils.Dump(c))
 
 	id := c.Param("id")
 
-	camper, err := h.camperRepo.FindByID(c.Request().Context(), id)
+	session, err := authSession(c)
 	if err != nil {
-		logger.Error(err)
-		return c.JSON(http.StatusInternalServerError, response{
+		logger.Errorf("Error getting session: %v", err)
+		return c.JSON(http.StatusUnauthorized, response{
 			Success: false,
-			Message: "internal server error",
+			Message: "unauthorized",
+		})
+	}
+
+	if session.IsCustomer() {
+		logger.Errorf("User is not authorized to access this resource")
+		return c.JSON(http.StatusForbidden, response{
+			Success: false,
+			Message: "forbidden",
+		})
+	}
+
+	driver, err := h.driverRepo.FindByID(c.Request().Context(), id)
+	if err != nil {
+		logger.Errorf("Error querying driver: %v", err)
+		return c.JSON(http.StatusNotFound, response{
+			Success: false,
+			Message: "driver not found",
 		})
 	}
 
 	return c.JSON(http.StatusOK, response{
 		Success: true,
-		Data:    camper,
+		Data:    driver,
 	})
 }
 
-func (h *httpService) findAllCampersHandler(c echo.Context) error {
+func (h *httpService) findAllDriversHandler(c echo.Context) error {
 	logger := logrus.WithField("context", utils.Dump(c))
 
-	var query model.CamperQueryInput
+	session, err := authSession(c)
+	if err != nil {
+		logger.Errorf("Error getting session: %v", err)
+		return c.JSON(http.StatusUnauthorized, response{
+			Success: false,
+			Message: "unauthorized",
+		})
+	}
 
+	if session.IsCustomer() {
+		logger.Errorf("User is not authorized to access this resource")
+		return c.JSON(http.StatusForbidden, response{
+			Success: false,
+			Message: "forbidden",
+		})
+	}
+
+	query := model.DriverQueryInput{}
 	if err := c.Bind(&query); err != nil {
 		logger.Errorf("Error parsing request: %v", err)
 		return c.JSON(http.StatusBadRequest, response{
@@ -42,52 +75,9 @@ func (h *httpService) findAllCampersHandler(c echo.Context) error {
 		})
 	}
 
-	campers, total, err := h.camperRepo.FindAll(c.Request().Context(), query)
+	drivers, total, err := h.driverRepo.FindAll(c.Request().Context(), query)
 	if err != nil {
-		logger.Errorf("Error getting campers: %v", err)
-		return c.JSON(http.StatusInternalServerError, response{
-			Success: false,
-			Message: err.Error(),
-		})
-	}
-
-	return c.JSON(http.StatusOK, withPaging(campers, total, query.PageOrDefault(), query.SizeOrDefault()))
-}
-
-func (h *httpService) updateCamperHandler(c echo.Context) error {
-	logger := logrus.WithField("context", utils.Dump(c))
-
-	id := c.Param("id")
-
-	var camper model.CamperInput
-
-	if err := c.Bind(&camper); err != nil {
-		logger.Errorf("Error parsing request: %v", err)
-		return c.JSON(http.StatusBadRequest, response{
-			Success: false,
-			Message: err.Error(),
-		})
-	}
-
-	session, err := authSession(c)
-	if err != nil {
-		logger.Errorf("Error getting session: %v", err)
-		return c.JSON(http.StatusUnauthorized, response{
-			Success: false,
-			Message: "unauthorized",
-		})
-	}
-
-	if session.IsCustomer() {
-		logger.Errorf("User is not authorized to access this resource")
-		return c.JSON(http.StatusForbidden, response{
-			Success: false,
-			Message: "forbidden",
-		})
-	}
-
-	if err := h.camperRepo.Update(c.Request().Context(), id, camper); err != nil {
-		logger.Errorf("Error updating camper: %v", err)
+		logger.Errorf("Error querying drivers: %v", err)
 		return c.JSON(http.StatusInternalServerError, response{
 			Success: false,
 			Message: "internal server error",
@@ -96,16 +86,19 @@ func (h *httpService) updateCamperHandler(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, response{
 		Success: true,
-		Data:    camper,
+		Data: map[string]interface{}{
+			"total":   total,
+			"drivers": drivers,
+		},
 	})
 }
 
-func (h *httpService) createCamperHandler(c echo.Context) error {
+func (h *httpService) createDriverHandler(c echo.Context) error {
 	logger := logrus.WithField("context", utils.Dump(c))
 
-	var camper model.CamperInput
+	var driver model.Driver
 
-	if err := c.Bind(&camper); err != nil {
+	if err := c.Bind(&driver); err != nil {
 		logger.Errorf("Error parsing request: %v", err)
 		return c.JSON(http.StatusBadRequest, response{
 			Success: false,
@@ -130,8 +123,8 @@ func (h *httpService) createCamperHandler(c echo.Context) error {
 		})
 	}
 
-	if err := h.camperRepo.Create(c.Request().Context(), camper); err != nil {
-		logger.Errorf("Error creating camper: %v", err)
+	if err := h.driverRepo.Create(c.Request().Context(), driver); err != nil {
+		logger.Errorf("Error creating driver: %v", err)
 		return c.JSON(http.StatusInternalServerError, response{
 			Success: false,
 			Message: "internal server error",
@@ -140,11 +133,11 @@ func (h *httpService) createCamperHandler(c echo.Context) error {
 
 	return c.JSON(http.StatusCreated, response{
 		Success: true,
-		Data:    camper,
+		Data:    driver,
 	})
 }
 
-func (h *httpService) deleteCamperHandler(c echo.Context) error {
+func (h *httpService) updateDriverHandler(c echo.Context) error {
 	logger := logrus.WithField("context", utils.Dump(c))
 
 	id := c.Param("id")
@@ -166,15 +159,63 @@ func (h *httpService) deleteCamperHandler(c echo.Context) error {
 		})
 	}
 
-	if err := h.camperRepo.Delete(c.Request().Context(), id); err != nil {
-		logger.Errorf("Error deleting camper: %v", err)
+	var driver model.Driver
+
+	if err := c.Bind(&driver); err != nil {
+		logger.Errorf("Error parsing request: %v", err)
+		return c.JSON(http.StatusBadRequest, response{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+
+	driver.ID = id
+
+	if err := h.driverRepo.Update(c.Request().Context(), id, driver); err != nil {
+		logger.Errorf("Error updating driver: %v", err)
 		return c.JSON(http.StatusInternalServerError, response{
 			Success: false,
 			Message: "internal server error",
 		})
 	}
 
-	return c.JSON(http.StatusNoContent, response{
+	return c.JSON(http.StatusOK, response{
+		Success: true,
+		Data:    driver,
+	})
+}
+
+func (h *httpService) deleteDriverHandler(c echo.Context) error {
+	logger := logrus.WithField("context", utils.Dump(c))
+
+	id := c.Param("id")
+
+	session, err := authSession(c)
+	if err != nil {
+		logger.Errorf("Error getting session: %v", err)
+		return c.JSON(http.StatusUnauthorized, response{
+			Success: false,
+			Message: "unauthorized",
+		})
+	}
+
+	if session.IsCustomer() {
+		logger.Errorf("User is not authorized to access this resource")
+		return c.JSON(http.StatusForbidden, response{
+			Success: false,
+			Message: "forbidden",
+		})
+	}
+
+	if err := h.driverRepo.Delete(c.Request().Context(), id); err != nil {
+		logger.Errorf("Error deleting driver: %v", err)
+		return c.JSON(http.StatusInternalServerError, response{
+			Success: false,
+			Message: "internal server error",
+		})
+	}
+
+	return c.JSON(http.StatusOK, response{
 		Success: true,
 	})
 }
