@@ -5,19 +5,19 @@ CREATE TABLE rentals (
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
     rental_type VARCHAR(100) NOT NULL,
-    camper_id INT NOT NULL REFERENCES campers(id),
-    driver_id INT REFERENCES drivers(id),
+    camper_id VARCHAR(255) NOT NULL REFERENCES campers(id),
+    driver_id VARCHAR(255) REFERENCES drivers(id),
     status VARCHAR(50) NOT NULL,
     grand_total DECIMAL(10, 2) NOT NULL,
     discount DECIMAL(10, 2) DEFAULT 0,
     created_at TIMESTAMP,
     updated_at TIMESTAMP,
-    deleted_at TIMESTAMP DEFAULT NULL,
+    deleted_at TIMESTAMP DEFAULT NULL
 );
 
 CREATE TABLE rental_equipments (
-    rental_id INT NOT NULL REFERENCES rentals(id) ON DELETE CASCADE,
-    equipment_id INT NOT NULL REFERENCES equipments(id) ON DELETE CASCADE,
+    rental_id VARCHAR(255) NOT NULL REFERENCES rentals(id) ON DELETE CASCADE,
+    equipment_id VARCHAR(255) NOT NULL REFERENCES equipments(id) ON DELETE CASCADE,
     PRIMARY KEY (rental_id, equipment_id)
 );
 

@@ -13,9 +13,9 @@ CREATE TABLE equipments (
 );
 
 CREATE TABLE camper_equipments (
-    rental_id INT NOT NULL REFERENCES rentals(id) ON DELETE CASCADE,
-    equipment_id INT NOT NULL REFERENCES equipments(id) ON DELETE CASCADE,
-    PRIMARY KEY (rental_id, equipment_id)
+    camper_id VARCHAR(255) NOT NULL REFERENCES campers(id) ON DELETE CASCADE,
+    equipment_id VARCHAR(255) NOT NULL REFERENCES equipments(id) ON DELETE CASCADE,
+    PRIMARY KEY (camper_id, equipment_id)
 );
 
 -- migrate:down
